@@ -48,6 +48,8 @@ mongoose.connect(MONGODB_URI, {
 
 // Routes
 
+// get all the articles
+
 app.get("/", function (req, res) {
     db.Article.find({}, function (error, data) {
         var hbsObject = {
@@ -91,7 +93,8 @@ app.get("/scrape", function (req, res) {
         });
 
         // Send a message to the client
-        res.send("Scrape Complete");
+        // res.send("Scrape Complete");
+        console.log("Scrape complete");
     });
 });
 
@@ -168,16 +171,33 @@ app.post("/articles/:id", function (req, res) {
 app.post("/articles/save/:id", function (req, res) {
     // Use the article id to find and update its saved boolean
     db.Article.findOneAndUpdate({
-        // stuff goes here
+            _id: req.params.id
+        }, {
+            saved: true
+        })
+        .then(function (dbArticle) {
+            res.json(dbArticle);
+        })
+        .catch(function (err) {
+            res.json(err);
         });
 });
 
 // Delete an article
 app.post("/articles/delete/:id", function (req, res) {
 
-    db.Article.findOneAndDelete({
-        // stuff goes here
-        });
+    db.Article.findOneAndUpdate({ 
+        _id: req.params.id 
+    },{
+        saved: false,
+    })
+    .then(function (dbArticle) {
+        res.json(dbArticle)
+        // console.log(dbArticle);
+    })
+    .catch(function (err) {
+        res.json(err)
+    });
 });
 
 // Create a new note
@@ -189,7 +209,6 @@ app.post("/notes/save/:id", function (req, res) {
     });
     console.log(req.body);
 
-    // code to create a new note goes here
 });
 
 // Delete a note
